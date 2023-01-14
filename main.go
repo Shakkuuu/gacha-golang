@@ -1,26 +1,53 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"os"
+	"strconv"
 
 	"github.com/Shakkuuu/gacha-golang/gacha"
 )
 
-func main() {
-	// section1()
-	// section2()
-	// section3()
-	section4()
+var (
+	flagCoin int
+)
+
+func init() {
+	flag.IntVar(&flagCoin, "coin", 0, "コインの初期枚数")
 }
 
-func section4() {
-	p := gacha.NewPlayer(10, 100)
+func main() {
+	flag.Parse()
+
+	tickets := initialTickets()
+	p := gacha.NewPlayer(tickets, flagCoin)
 
 	n := inputN(p)
 	results, summary := gacha.DrawN(p, n)
 
-	fmt.Println(results)
-	fmt.Println(summary)
+	saveResults(results)
+	saveSummary(summary)
+
+	// section1()
+	// section2()
+	// section3()
+	// section4()
+}
+
+func initialTickets() int {
+	if flag.NArg() == 0 {
+		fmt.Fprintln(os.Stderr, "ガチャチケットの枚数を入力してください")
+		os.Exit(1)
+	}
+
+	num, err := strconv.Atoi(flag.Arg(0))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	return num
 }
 
 func inputN(p *gacha.Player) int {
@@ -37,6 +64,43 @@ func inputN(p *gacha.Player) int {
 		fmt.Printf("1以上%d以下の数を入力してください\n", max)
 	}
 	return n
+}
+
+func saveResults(results []*gacha.Card) {
+	f, err := os.Create("results.txt")
+
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
+	}()
+
+	for _, result := range results {
+		fmt.Fprintln(f, result)
+	}
+}
+
+func saveSummary(summary map[gacha.Rarity]int) {
+	f, err := os.Create("summary.txt")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
+	}()
+
+	for rarity, count := range summary {
+		fmt.Fprintf(f, "%s %d\n", rarity.String(), count)
+	}
 }
 
 // func section1() {
@@ -139,6 +203,16 @@ func inputN(p *gacha.Player) int {
 
 // 	n := inputN(&p)
 // 	results, summary := drawN(&p, n)
+
+// 	fmt.Println(results)
+// 	fmt.Println(summary)
+// }
+
+// func section4() {
+// 	p := gacha.NewPlayer(10, 100)
+
+// 	n := inputN(p)
+// 	results, summary := gacha.DrawN(p, n)
 
 // 	fmt.Println(results)
 // 	fmt.Println(summary)
