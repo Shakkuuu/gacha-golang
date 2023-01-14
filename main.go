@@ -1,15 +1,31 @@
 package main
 
 import (
-	// TODO: fmtパッケージをインポートする
-
 	"fmt"
 	"math/rand"
 	"time"
 )
 
-func main() {
+type rarity string
 
+const (
+	rarityN  rarity = "ノーマル"
+	rarityR  rarity = "R"
+	raritySR rarity = "SR"
+	rarityXR rarity = "XR"
+)
+
+type card struct {
+	rarity rarity
+	name   string
+}
+
+func main() {
+	// section1()
+	section2()
+}
+
+func section1() {
 	// 乱数の種を設定する
 	// 現在時刻をUNIX時間にしたものを種とする
 	rand.Seed(time.Now().Unix())
@@ -51,4 +67,51 @@ LOOP:
 			fmt.Println("XR")
 		}
 	}
+}
+
+func section2() {
+	slime := card{rarity: rarityN, name: "スライム"}
+	fmt.Println(slime)
+
+	dragon := card{rarity: raritySR, name: "ドラゴン"}
+	fmt.Println(dragon)
+
+	// 乱数の種を設定する
+	// 現在時刻をUNIX時間にしたものを種とする
+	rand.Seed(time.Now().Unix())
+
+	var n int
+
+	for {
+		fmt.Print("何回引きますか?")
+		fmt.Scanln(&n)
+
+		if n > 0 {
+			break
+		}
+
+		fmt.Println("もう一度入力してください")
+	}
+
+	result := map[string]int{}
+
+	for i := 0; i < n; i++ {
+
+		num := rand.Intn(100)
+
+		// fmt.Printf("%d回目 ", i)
+
+		switch {
+		case num < 80:
+			result["ノーマル"]++
+		case num < 95:
+			result["R"]++
+		case num < 99:
+			result["SR"]++
+		default:
+			result["XR"]++
+		}
+	}
+
+	fmt.Println(result)
 }
