@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"gacha/gacha"
+
+	"github.com/Shakkuuu/gacha-golang/gacha"
 )
 
 func main() {
