@@ -17,6 +17,12 @@ func (p *Player) DrawableNum() int {
 	return p.tickets + p.coin/10
 }
 
+func (p *Player) Maisu() (int, int) {
+	ticket := p.tickets
+	coin := p.coin
+	return ticket, coin
+}
+
 func (p *Player) draw(n int) error {
 
 	if p.DrawableNum() < n {
@@ -24,12 +30,11 @@ func (p *Player) draw(n int) error {
 	}
 
 	// ガチャ券から優先的に使う
-	if p.tickets > n {
+	if p.tickets > 0 {
 		p.tickets -= n
 		return nil
 	}
 
-	p.tickets = 0
 	p.coin -= n * 10 // 1回あたり10枚消費する
 
 	return nil

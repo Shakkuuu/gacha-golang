@@ -12,18 +12,33 @@ import (
 	"github.com/tenntenn/sqlite"
 )
 
+type TmpResults struct {
+	DB      []*gacha.Card
+	One     []string
+	Msg     string
+	Tickets int
+	Coins   int
+	Kaisu   int
+}
+
 var tmpl = template.Must(template.New("index").Parse(`<!DOCTYPE html>
 <html>
 	<head><title>ガチャ</title></head>
 	<body>
+		<p>{{.Msg}}</p>
+		<p>チケット数:{{.Tickets}} コイン数:{{.Coins}} 引ける回数:{{.Kaisu}}
 		<form action="/draw">
 			<label for="num">枚数</input>
 			<input type="number" name="num" min="1" value="1">
 			<input type="submit" value="ガチャを引く">
 		</form>
-		<h1>結果一覧</h1>
-		<ol>{{range .}}
-		<li>{{.}}</li>
+		<h2>ガチャ結果</h2>
+		<ol>{{range $o := .One}}
+		<li>{{$o}}</li>
+		{{end}}</ol>
+		<h2>結果一覧</h2>
+		<ol>{{range $d := .DB}}
+		<li>{{$d}}</li>
 		{{end}}</ol>
 	</body>
 </html>`))
@@ -67,24 +82,61 @@ func run() error {
 		return err
 	}
 
-	p := gacha.NewPlayer(10, 100)
+	p := gacha.NewPlayer(10, 200)
 
 	play := gacha.NewPlay(p)
 
+	var numnum int
+	var onere []string
+	var rere []string
+	var msg string
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		results, err := getResults(db, 100)
+		results, err := getResults(db, 200)
+		ti, co := p.Maisu()
+		kai := p.DrawableNum()
+		fmt.Printf("チケット:%d コイン:%d 引ける回数:%d \n", ti, co, kai)
+
+		if len(onere) > 0 {
+			lenlen := len(onere)
+			rere = onere[lenlen-numnum:]
+			fmt.Println(rere)
+		}
+
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		if err := tmpl.Execute(w, results); err != nil {
+		rr := TmpResults{
+			DB:      results,
+			One:     rere,
+			Msg:     msg,
+			Tickets: ti,
+			Coins:   co,
+			Kaisu:   kai,
+		}
+
+		if err := tmpl.Execute(w, rr); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	})
 
 	http.HandleFunc("/draw", func(w http.ResponseWriter, r *http.Request) {
 		num, err := strconv.Atoi(r.FormValue("num"))
+		kai := p.DrawableNum()
+		if kai < 0 {
+			msg = "チケットあるいはコインがありません"
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
+		}
+		if num > kai {
+			// fmt.Println("引ける回数を超えてます")
+			msg = "引ける回数を超えてます"
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
+		}
+		numnum = num
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -99,6 +151,8 @@ func run() error {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
+
+			onere = append(onere, play.Result().String())
 		}
 
 		if err := play.Err(); err != nil {
