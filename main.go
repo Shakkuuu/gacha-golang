@@ -31,7 +31,7 @@ var tmpl = template.Must(template.New("index").Parse(`<!DOCTYPE html>
 		<p>{{.Msg}}</p>
 		<p>チケット数:{{.Tickets}} コイン数:{{.Coins}} 引ける回数:{{.Kaisu}}
 		<form action="/draw">
-			<label for="num">枚数</input>
+			<label for="num">回数</input>
 			<input type="number" name="num" min="1" value="1">
 			<input type="submit" value="ガチャを引く">
 		</form>
