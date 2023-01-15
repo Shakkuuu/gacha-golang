@@ -19,6 +19,7 @@ type TmpResults struct {
 	Tickets int
 	Coins   int
 	Kaisu   int
+	Rari    []string
 }
 
 var tmpl = template.Must(template.New("index").Parse(`<!DOCTYPE html>
@@ -37,6 +38,7 @@ var tmpl = template.Must(template.New("index").Parse(`<!DOCTYPE html>
 		<li>{{$o}}</li>
 		{{end}}</ol>
 		<h2>結果一覧</h2>
+		<p>{{.Rari}}</p>
 		<ol>{{range $d := .DB}}
 		<li>{{$d}}</li>
 		{{end}}</ol>
@@ -93,9 +95,20 @@ func run() error {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		results, err := getResults(db, 200)
+
 		ti, co := p.Maisu()
 		kai := p.DrawableNum()
 		fmt.Printf("チケット:%d コイン:%d 引ける回数:%d \n", ti, co, kai)
+
+		reamap := map[gacha.Rarity]int{}
+		for _, reav := range results {
+			reamap[reav.Rarity]++
+		}
+		var rea []string
+		for rarity, count := range reamap {
+			countStr := strconv.Itoa(count)
+			rea = append(rea, rarity.String()+":"+countStr)
+		}
 
 		if len(onere) > 0 {
 			lenlen := len(onere)
@@ -115,6 +128,7 @@ func run() error {
 			Tickets: ti,
 			Coins:   co,
 			Kaisu:   kai,
+			Rari:    rea,
 		}
 
 		if err := tmpl.Execute(w, rr); err != nil {

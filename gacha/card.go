@@ -3,10 +3,12 @@ package gacha
 type Rarity string
 
 const (
-	RarityN  Rarity = "ノーマル"
-	RarityR  Rarity = "R"
-	RaritySR Rarity = "SR"
-	RarityXR Rarity = "XR"
+	RarityN   Rarity = "N"
+	RarityR   Rarity = "R"
+	RaritySR  Rarity = "SR"
+	RaritySSR Rarity = "SSR"
+	RarityUR  Rarity = "UR"
+	RarityLR  Rarity = "LR"
 )
 
 func (r Rarity) String() string {

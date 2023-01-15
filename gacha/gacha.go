@@ -69,14 +69,18 @@ func (p *Play) draw() (*Card, error) {
 	num := rand.Intn(100)
 
 	switch {
-	case num < 80:
-		return &Card{Rarity: RarityN, Name: "スライム"}, nil
+	case num < 50:
+		return &Card{Rarity: RarityN, Name: "木の枝"}, nil
+	case num < 75:
+		return &Card{Rarity: RarityR, Name: "こん棒"}, nil
+	case num < 90:
+		return &Card{Rarity: RaritySR, Name: "鉄の剣"}, nil
 	case num < 95:
-		return &Card{Rarity: RarityR, Name: "オーク"}, nil
+		return &Card{Rarity: RaritySSR, Name: "炎の剣"}, nil
 	case num < 99:
-		return &Card{Rarity: RaritySR, Name: "ドラゴン"}, nil
+		return &Card{Rarity: RarityUR, Name: "闇の剣"}, nil
 	default:
-		return &Card{Rarity: RarityXR, Name: "イフリート"}, nil
+		return &Card{Rarity: RarityLR, Name: "爆炎神龍剣"}, nil
 	}
 
 	// q := "スライム:80,オーク:15,ドラゴン:4,イフリート:1"
