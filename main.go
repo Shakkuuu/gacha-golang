@@ -157,6 +157,13 @@ func run() error {
 
 		for i := 0; i < num; i++ {
 			if !play.Draw() {
+				if err := saveResult(db, play.Result()); err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+
+				onere = append(onere, play.Result().String())
+
 				break
 			}
 
